@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Menú</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+<nav>
+    <div class="nav-wrapper">
+        <ul id="nav-mobile" class="left hide-on-med-and-down">
+            <li><a href="registrarImagen.jsp">Registrar Imagen</a></li>
+            <li><a href="list">Listar Imágenes</a></li>
+            <li><a href="buscarImagen.jsp">Buscar Imágenes</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+<div id="links" class="section scrollspy">
+    <div class="row">
+        <div class="col s12">
+            <p th:text="'Hello, ' + ${username} + '!'"></p>
+            <h3 class="header">Menú</h3>
+            <div class="collection">
+                <a href="registrarImagen.jsp" class="collection-item">Registrar Imagen</a>
+                <a href="list" class="collection-item">Listar Imágenes</a>
+                <a href="buscarImagen.jsp" class="collection-item">Buscar Imágenes</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
