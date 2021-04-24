@@ -3,6 +3,8 @@ package mpegg.userapp.userapp.Controllers;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +46,11 @@ public class AppController {
         model.addObject("username", context.getIdToken().getPreferredUsername());
         //model.addAttribute("roles", ((KeycloakPrincipal) principal).getKeycloakSecurityContext().getToken().getRealmAccess().getRoles());
         return model;
+    }
+
+    @GetMapping(path = "/app/test")
+    public String test() {
+        return "ok";
     }
 
     @GetMapping(path = "/logout")
