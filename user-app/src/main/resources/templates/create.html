@@ -13,9 +13,11 @@
 <nav>
     <div class="nav-wrapper">
         <ul id="nav-mobile" class="left hide-on-med-and-down">
-            <li><a href="registrarImagen.jsp">Registrar Imagen</a></li>
-            <li><a href="list">Listar Imágenes</a></li>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/create">Upload files</a></li>
+            <li><a href="/ownFiles">Your files</a></li>
             <li><a href="buscarImagen.jsp">Buscar Imágenes</a></li>
+            <li><a href="/logout">Logout</a></li>
         </ul>
     </div>
 </nav>
@@ -23,7 +25,7 @@
 <div class="container">
     <h1>Create MPEG-G File</h1>
     <div class="row">
-        <form  method="post" action="/api/create" enctype="multipart/form-data" class="col s12">
+        <form  method="post" action="/api/v1/create" enctype="multipart/form-data" class="col s12">
             <div class="file-field input-field">
                 <div class="btn">
                     <span>Select Dataset Group</span>

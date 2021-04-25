@@ -9,8 +9,9 @@
 <nav>
     <div class="nav-wrapper">
         <ul id="nav-mobile" class="left hide-on-med-and-down">
-            <li><a href="registrarImagen.jsp">Registrar Imagen</a></li>
-            <li><a href="list">Listar Imágenes</a></li>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/create">Upload files</a></li>
+            <li><a href="/ownFiles">Your files</a></li>
             <li><a href="buscarImagen.jsp">Buscar Imágenes</a></li>
             <li><a href="/logout">Logout</a></li>
         </ul>
@@ -22,8 +23,8 @@
             <p th:text="'Hello, ' + ${username} + '!'"></p>
             <h3 class="header">Menú</h3>
             <div class="collection">
-                <a href="registrarImagen.jsp" class="collection-item">Registrar Imagen</a>
-                <a href="list" class="collection-item">Listar Imágenes</a>
+                <a href="/create" class="collection-item">Upload files</a>
+                <a href="/ownFiles" class="collection-item">Your files</a>
                 <a href="buscarImagen.jsp" class="collection-item">Buscar Imágenes</a>
             </div>
         </div>
