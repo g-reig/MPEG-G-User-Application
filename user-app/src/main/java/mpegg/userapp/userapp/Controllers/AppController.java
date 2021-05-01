@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
@@ -47,12 +48,11 @@ public class AppController {
         return model;
     }
 
-    @GetMapping(path = "/create")
-    public ModelAndView create() {
-        ModelAndView model = new ModelAndView("create");
+    @GetMapping(path = "/addDatasetGroup")
+    public ModelAndView addDatasetGroup(@RequestParam("file_id") String file_id) {
+        ModelAndView model = new ModelAndView("addDatasetGroup");
         KeycloakSecurityContext context = getKeycloakSecurityContext();
-        model.addObject("username", context.getIdToken().getPreferredUsername());
-        //model.addAttribute("roles", ((KeycloakPrincipal) principal).getKeycloakSecurityContext().getToken().getRealmAccess().getRoles());
+        model.addObject("file_id", file_id);
         return model;
     }
 
