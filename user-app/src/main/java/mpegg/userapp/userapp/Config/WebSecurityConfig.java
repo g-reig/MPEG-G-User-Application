@@ -20,8 +20,13 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
         http
+                .requiresChannel()
+                .anyRequest()
+                .requiresSecure()
+                .and()
                 .authorizeRequests()
-                .antMatchers("/*").hasRole("user");
+                .antMatchers("/*")
+                .hasRole("user");
     }
 
     @Autowired

@@ -56,6 +56,18 @@ public class AppController {
         return model;
     }
 
+    @GetMapping(path = "/addDataset")
+    public ModelAndView addDataset(@RequestParam("dg_id") String dg_id) {
+        ModelAndView model = new ModelAndView("addDataset");
+        model.addObject("dg_id", dg_id);
+        return model;
+    }
+
+    @GetMapping(path = "/addFile")
+    public ModelAndView addFile() {
+        return new ModelAndView("addFile");
+    }
+
     @GetMapping(path = "/ownFiles")
     public String ownFiles() {
         ModelAndView model = new ModelAndView("ownFiles");
