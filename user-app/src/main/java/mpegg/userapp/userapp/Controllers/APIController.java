@@ -89,4 +89,47 @@ public class APIController {
         }
         return "ok";
     }
+
+    @PostMapping("/editDatasetGroup")
+    public String editDatasetGroup(@RequestPart(value = "dg_md",required = false) MultipartFile dg_md, @RequestPart(value = "dg_pr", required = false) MultipartFile dg_pr, @RequestPart("dg_id") String dg_id) {
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("dg_id", dg_id);
+        body.add("dg_md", dg_md.getResource());
+        body.add("dg_pr", dg_pr.getResource());
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/editDatasetGroup", HttpMethod.POST, requestEntity, String.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            return "Not ok";
+        }
+        return "ok";
+    }
+
+    @PostMapping("/editDataset")
+    public String editDataset(@RequestPart(value = "dt_md",required = false) MultipartFile dt_md, @RequestPart(value = "dt_pr", required = false) MultipartFile dt_pr, @RequestPart("dt_id") String dt_id) {
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("dt_id", dt_id);
+        body.add("dt_md", dt_md.getResource());
+        body.add("dt_pr", dt_pr.getResource());
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/editDataset", HttpMethod.POST, requestEntity, String.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            return "Not ok";
+        }
+        return "ok";
+    }
+
 }

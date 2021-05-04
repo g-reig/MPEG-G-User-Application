@@ -63,6 +63,20 @@ public class AppController {
         return model;
     }
 
+    @GetMapping(path = "/editDatasetGroup")
+    public ModelAndView editDatasetGroup(@RequestParam("dg_id") String dg_id) {
+        ModelAndView model = new ModelAndView("editDatasetGroup");
+        model.addObject("dg_id", dg_id);
+        return model;
+    }
+
+    @GetMapping(path = "/editDataset")
+    public ModelAndView editDataset(@RequestParam("dt_id") String dt_id) {
+        ModelAndView model = new ModelAndView("editDataset");
+        model.addObject("dt_id", dt_id);
+        return model;
+    }
+
     @GetMapping(path = "/addFile")
     public ModelAndView addFile() {
         return new ModelAndView("addFile");
