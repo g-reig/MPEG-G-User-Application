@@ -26,7 +26,7 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/*")
-                .hasRole("user");
+                .authenticated();
     }
 
     @Autowired
