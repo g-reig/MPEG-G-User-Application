@@ -103,7 +103,7 @@ public class AppController {
     @GetMapping(path = "/logout")
     public RedirectView logout() throws ServletException {
         request.logout();
-        return new RedirectView("/app/home");
+        return new RedirectView("/");
     }
 
     private KeycloakSecurityContext getKeycloakSecurityContext() {
