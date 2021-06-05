@@ -1,8 +1,12 @@
 package mpegg.userapp.userapp.Controllers;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,10 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -27,7 +28,8 @@ import java.security.Principal;
 @RestController
 public class AppController {
     private final HttpServletRequest request;
-    private final String urlWorkflow = "http://localhost:8086";
+    @Value("${workflow.url}")
+    private final String urlWorkflow = null;
 
     @Autowired
     public AppController(HttpServletRequest request) {
@@ -48,7 +50,7 @@ public class AppController {
         return model;
     }
 
-    @GetMapping(path = "/addDatasetGroup")
+    @PostMapping(path = "/addDatasetGroup")
     public ModelAndView addDatasetGroup(@RequestParam("file_id") String file_id) {
         ModelAndView model = new ModelAndView("addDatasetGroup");
         KeycloakSecurityContext context = getKeycloakSecurityContext();
@@ -56,21 +58,21 @@ public class AppController {
         return model;
     }
 
-    @GetMapping(path = "/addDataset")
+    @PostMapping(path = "/addDataset")
     public ModelAndView addDataset(@RequestParam("dg_id") String dg_id) {
         ModelAndView model = new ModelAndView("addDataset");
         model.addObject("dg_id", dg_id);
         return model;
     }
 
-    @GetMapping(path = "/editDatasetGroup")
+    @PostMapping(path = "/editDatasetGroup")
     public ModelAndView editDatasetGroup(@RequestParam("dg_id") String dg_id) {
         ModelAndView model = new ModelAndView("editDatasetGroup");
         model.addObject("dg_id", dg_id);
         return model;
     }
 
-    @GetMapping(path = "/editDataset")
+    @PostMapping(path = "/editDataset")
     public ModelAndView editDataset(@RequestParam("dt_id") String dt_id) {
         ModelAndView model = new ModelAndView("editDataset");
         model.addObject("dt_id", dt_id);
@@ -83,21 +85,56 @@ public class AppController {
     }
 
     @GetMapping(path = "/ownFiles")
-    public String ownFiles() {
+    public ModelAndView ownFiles() {
         ModelAndView model = new ModelAndView("ownFiles");
         KeycloakSecurityContext context = getKeycloakSecurityContext();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization" , "Bearer "+context.getTokenString());
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity(headers);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = null;
-        response = restTemplate.exchange(urlWorkflow+"/api/v1/ownFiles", HttpMethod.GET, entity, String.class);
-        return response.getBody().toString();
+        ResponseEntity<JSONArray> response = null;
+        response = restTemplate.exchange(urlWorkflow+"/api/v1/ownFiles", HttpMethod.POST, entity, JSONArray.class);
+        JSONArray a = response.getBody();
+        model.addObject("files", a);
+        return model;
     }
 
-    @GetMapping(path = "/test")
-    public String test() {
-        return "ok";
+    @PostMapping(path = "/getFileData")
+    public ModelAndView getFileData(@RequestParam("file_id") String file_id) {
+        ModelAndView model = new ModelAndView("getFileData");
+        KeycloakSecurityContext context = getKeycloakSecurityContext();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization" , "Bearer "+context.getTokenString());
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JSONObject> response = null;
+        response = restTemplate.exchange(urlWorkflow+"/api/v1/mpegfile/"+file_id, HttpMethod.GET, entity, JSONObject.class);
+        model.addObject("file", response.getBody());
+        return model;
+    }
+
+    @PostMapping(path = "/getDatasetGroupData")
+    public ModelAndView getDatasetGroupData(@RequestParam("dg_id") String dg_id) {
+        ModelAndView model = new ModelAndView("getDatasetGroupData");
+        KeycloakSecurityContext context = getKeycloakSecurityContext();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization" , "Bearer "+context.getTokenString());
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JSONObject> response = null;
+        response = restTemplate.exchange(urlWorkflow+"/api/v1/dg/"+dg_id+"/datasets", HttpMethod.GET, entity, JSONObject.class);
+        model.addObject("dg", response.getBody());
+        return model;
+    }
+
+    @GetMapping(path = "/searchDatasetGroup")
+    public ModelAndView searchDatasetGroup() {
+        return new ModelAndView("searchDatasetGroup");
+    }
+
+    @GetMapping(path = "/searchDataset")
+    public ModelAndView searchDataset() {
+        return new ModelAndView("searchDataset");
     }
 
     @GetMapping(path = "/logout")

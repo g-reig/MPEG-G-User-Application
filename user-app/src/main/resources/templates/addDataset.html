@@ -11,13 +11,15 @@
 </head>
 <body>
 <nav>
-    <div class="nav-wrapper">
+    <div class="nav-wrapper blue darken-1">
         <ul id="nav-mobile" class="left hide-on-med-and-down">
-            <li><a href="/addFile">Add File</a></li>
-            <li><a href="/addDatasetGroup">Add Dataset Group</a></li>
-            <li><a href="/addDataset">Add Dataset</a></li>
-            <li><a href="/editDatasetGroup">Edit Dataset Group</a></li>
-            <li><a href="/editDataset">Edit Dataset</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/addFile" class="collection-item">Add file</a></li>
+            <li><a href="/ownFiles">Own files</a></li>
+            <li><a href="/searchDatasetGroup">Search Dataset Group</a></li>
+            <li><a href="/searchDataset">Search Dataset</a></li>
+        </ul>
+        <ul id="nav-mobile2" class="right hide-on-med-and-down">
             <li><a href="/logout">Logout</a></li>
         </ul>
     </div>
@@ -25,6 +27,8 @@
 
 <div class="container">
     <h1>Add Dataset to Dataset Group</h1>
+    <div class="card-panel green white-text" th:text="${success}" th:if="${success}"></div>
+    <div class="card-panel red white-text" th:text="${error}" th:if="${error}"></div>
     <div class="row">
         <form method="post" action="/api/v1/addDataset" enctype="multipart/form-data" class="col s12">
             <div class="file-field input-field">

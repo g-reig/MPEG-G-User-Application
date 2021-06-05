@@ -1,9 +1,18 @@
 package mpegg.userapp.userapp.Controllers;
 
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.keycloak.KeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +28,12 @@ import java.io.IOException;
 @RequestMapping("/api/v1")
 public class APIController {
     private final HttpServletRequest request;
-    private final String urlWorkflow = "http://localhost:8086";
+
+    @Autowired
+    private Environment env;
+
+    @Value("${workflow.url}")
+    private final String urlWorkflow = null;
 
     @Autowired
     public APIController(HttpServletRequest request) {
@@ -27,7 +41,7 @@ public class APIController {
     }
 
     @PostMapping("/addFile")
-    public String addFile(@RequestParam("file_name") String file_name) {
+    public ModelAndView addFile(@RequestParam("file_name") String file_name) {
         KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -36,17 +50,24 @@ public class APIController {
         body.add("file_name", file_name);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = null;
         try {
-            ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/addFile", HttpMethod.POST, requestEntity, String.class);
+            response = restTemplate.exchange(urlWorkflow + "/api/v1/addFile", HttpMethod.POST, requestEntity, String.class);
         } catch (RestClientException e) {
             e.printStackTrace();
-            return "Error creating file";
+            ModelAndView m = new ModelAndView("error");
+            m.addObject("error", "Error creating file");
+            return m;
         }
-        return "File created successfully";
+        ModelAndView m = new ModelAndView("addDatasetGroup");
+        m.addObject("file_id", response.getBody());
+        return m;
     }
 
     @PostMapping("/addDatasetGroup")
-    public String addDatasetGroup(@RequestPart("dg_md") MultipartFile dg_md, @RequestPart("dg_pr") MultipartFile dg_pr, @RequestPart("dt_md") MultipartFile[] dt_md, @RequestPart("file_id") String file_id) {
+    public ModelAndView addDatasetGroup(@RequestPart("dg_md") MultipartFile dg_md, @RequestPart("dg_pr") MultipartFile dg_pr, @RequestPart("dt_md") MultipartFile[] dt_md, @RequestPart("file_id") String file_id) {
+        ModelAndView m = new ModelAndView("addDatasetGroup");
+        m.addObject("file_id",file_id);
         KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -60,17 +81,22 @@ public class APIController {
         }
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response;
         try {
-            ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/addDatasetGroup", HttpMethod.POST, requestEntity, String.class);
+            response = restTemplate.exchange(urlWorkflow + "/api/v1/addDatasetGroup", HttpMethod.POST, requestEntity, String.class);
         } catch (RestClientException e) {
             e.printStackTrace();
-            return "Not ok";
+            m.addObject("error","Error adding new Dataset Group");
+            return m;
         }
-        return "ok";
+        m.addObject("success","Dataset Group added successfully");
+        return m;
     }
 
     @PostMapping("/addDataset")
-    public String addDataset(@RequestPart(value = "dt_md",required = false) MultipartFile dt_md, @RequestPart(value = "dt_pr", required = false) MultipartFile dt_pr, @RequestPart("dg_id") String dg_id) {
+    public ModelAndView addDataset(@RequestPart(value = "dt_md",required = false) MultipartFile dt_md, @RequestPart(value = "dt_pr", required = false) MultipartFile dt_pr, @RequestPart("dg_id") String dg_id) {
+        ModelAndView m = new ModelAndView("addDataset");
+        m.addObject("dg_id",dg_id);
         KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -85,13 +111,17 @@ public class APIController {
             ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/addDataset", HttpMethod.POST, requestEntity, String.class);
         } catch (RestClientException e) {
             e.printStackTrace();
-            return "Not ok";
+            m.addObject("error","Error adding new Dataset");
+            return m;
         }
-        return "ok";
+        m.addObject("success","Dataset added successfully");
+        return m;
     }
 
     @PostMapping("/editDatasetGroup")
-    public String editDatasetGroup(@RequestPart(value = "dg_md",required = false) MultipartFile dg_md, @RequestPart(value = "dg_pr", required = false) MultipartFile dg_pr, @RequestPart("dg_id") String dg_id) {
+    public ModelAndView editDatasetGroup(@RequestPart(value = "dg_md",required = false) MultipartFile dg_md, @RequestPart(value = "dg_pr", required = false) MultipartFile dg_pr, @RequestPart("dg_id") String dg_id) {
+        ModelAndView m = new ModelAndView("editDatasetGroup");
+        m.addObject("dg_id",dg_id);
         KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -106,13 +136,17 @@ public class APIController {
             ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/editDatasetGroup", HttpMethod.POST, requestEntity, String.class);
         } catch (RestClientException e) {
             e.printStackTrace();
-            return "Not ok";
+            m.addObject("error","Error editing Dataset Group");
+            return m;
         }
-        return "ok";
+        m.addObject("success","Dataset Group edited successfully");
+        return m;
     }
 
     @PostMapping("/editDataset")
-    public String editDataset(@RequestPart(value = "dt_md",required = false) MultipartFile dt_md, @RequestPart(value = "dt_pr", required = false) MultipartFile dt_pr, @RequestPart("dt_id") String dt_id) {
+    public ModelAndView editDataset(@RequestPart(value = "dt_md",required = false) MultipartFile dt_md, @RequestPart(value = "dt_pr", required = false) MultipartFile dt_pr, @RequestPart("dt_id") String dt_id) {
+        ModelAndView m = new ModelAndView("editDataset");
+        m.addObject("dt_id",dt_id);
         KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -127,9 +161,130 @@ public class APIController {
             ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/editDataset", HttpMethod.POST, requestEntity, String.class);
         } catch (RestClientException e) {
             e.printStackTrace();
-            return "Not ok";
+            m.addObject("error","Error editing Dataset Group");
+            return m;
+        }
+        m.addObject("success","Dataset Group edited successfully");
+        return m;
+    }
+
+    @PostMapping(value = "/dg/{dg_id}/{resource}",produces = "text/xml; charset=utf-8")
+    @ResponseBody
+    public String getDatasetGroup(@PathVariable("dg_id") String dg_id, @PathVariable("resource") String resource) {
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JSONObject> response = null;
+        response = restTemplate.exchange(urlWorkflow + "/api/v1/dg/" + dg_id + "/" + resource, HttpMethod.GET, entity, JSONObject.class);
+        return (String) response.getBody().get("data");
+    }
+
+    @PostMapping(value = "/dt/{dt_id}/{resource}",produces = "text/xml; charset=utf-8")
+    @ResponseBody
+    public String getDataset(@PathVariable("dt_id") String dt_id, @PathVariable("resource") String resource) {
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JSONObject> response = null;
+        response = restTemplate.exchange(urlWorkflow + "/api/v1/dt/" + dt_id + "/" + resource, HttpMethod.GET, entity, JSONObject.class);
+        return (String) response.getBody().get("data");
+    }
+    @PostMapping("searchDatasetGroup")
+    @ResponseBody
+    public ModelAndView searchDatasetGroup(@RequestParam(value = "center", required = false) String center,
+                                     @RequestParam(value = "description", required = false) String description,
+                                     @RequestParam(value = "title", required = false) String title,
+                                     @RequestParam(value = "type", required = false) String type) {
+        ModelAndView model = new ModelAndView("searchDatasetGroupResult");
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("center", center);
+        body.add("description", description);
+        body.add("title", title);
+        body.add("type", type);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        JSONArray response = restTemplate.exchange(urlWorkflow + "/api/v1/findDatasetGroupMetadata", HttpMethod.POST, requestEntity, JSONArray.class).getBody();
+        model.addObject("dg",response);
+        return model;
+    }
+
+    @PostMapping("/deleteFile")
+    public String deleteFile(@RequestParam("file_id") String file_id) {
+        HttpHeaders headers = new HttpHeaders();
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file_id", file_id);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/deleteFile", HttpMethod.DELETE, requestEntity, String.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            return "not ok";
         }
         return "ok";
     }
 
+    @PostMapping("searchDataset")
+    @ResponseBody
+    public ModelAndView searchDataset(@RequestParam(value = "title", required = false) String title,
+                                      @RequestParam(value = "taxon_id", required = false) String taxon_id) {
+        ModelAndView model = new ModelAndView("searchDatasetResult");
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("title", title);
+        body.add("taxon_id", taxon_id);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        JSONArray response = restTemplate.exchange(urlWorkflow + "/api/v1/findDatasetMetadata", HttpMethod.POST, requestEntity, JSONArray.class).getBody();
+        model.addObject("dt",response);
+        return model;
+    }
+    @PostMapping("/deleteDatasetGroup")
+    public String deleteDatasetGroup(@RequestParam("dg_id") String dg_id) {
+        HttpHeaders headers = new HttpHeaders();
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("dg_id", dg_id);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/deleteDatasetGroup", HttpMethod.DELETE, requestEntity, String.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            return "not ok";
+        }
+        return "ok";
+    }
+
+    @PostMapping("/deleteDataset")
+    public String deleteDataset(@RequestParam("dt_id") String dt_id) {
+        HttpHeaders headers = new HttpHeaders();
+        KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+        headers.set("Authorization","Bearer "+context.getTokenString());
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("dt_id", dt_id);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(urlWorkflow + "/api/v1/deleteDataset", HttpMethod.DELETE, requestEntity, String.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            return "not ok";
+        }
+        return "ok";
+    }
 }

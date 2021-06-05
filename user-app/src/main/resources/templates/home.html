@@ -7,13 +7,15 @@
 </head>
 <body>
 <nav>
-    <div class="nav-wrapper">
+    <div class="nav-wrapper blue darken-1">
         <ul id="nav-mobile" class="left hide-on-med-and-down">
-            <li><a href="/addFile">Add File</a></li>
-            <li><a href="/addDatasetGroup">Add Dataset Group</a></li>
-            <li><a href="/addDataset">Add Dataset</a></li>
-            <li><a href="/editDatasetGroup">Edit Dataset Group</a></li>
-            <li><a href="/editDataset">Edit Dataset</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/addFile" class="collection-item">Add file</a></li>
+            <li><a href="/ownFiles">Own files</a></li>
+            <li><a href="/searchDatasetGroup">Search Dataset Group</a></li>
+            <li><a href="/searchDataset">Search Dataset</a></li>
+        </ul>
+        <ul id="nav-mobile2" class="right hide-on-med-and-down">
             <li><a href="/logout">Logout</a></li>
         </ul>
     </div>
@@ -21,14 +23,13 @@
 <div id="links" class="section scrollspy">
     <div class="row">
         <div class="col s12">
-            <p th:text="'Hello, ' + ${username} + '!'"></p>
+            <h2 th:text="'Hello, ' + ${username} + '!'"></h2>
             <h3 class="header">Menú</h3>
             <div class="collection">
-                <a href="/addFile" class="collection-item">Add File</a>
-                <a href="/addDatasetGroup" class="collection-item">Add Dataset Group</a>
-                <a href="/addDataset" class="collection-item">Add Dataset</a>
-                <a href="/editDatasetGroup" class="collection-item">Edit Dataset Group</a>
-                <a href="/editDataset" class="collection-item">Edit Dataset</a>
+                <a href="/addFile" class="collection-item">Add file</a>
+                <a href="/ownFiles" class="collection-item">Own files</a>
+                <a href="/searchDatasetGroup" class="collection-item">Search Dataset Group</a>
+                <a href="/searchDataset" class="collection-item">Search Dataset</a>
             </div>
         </div>
     </div>
